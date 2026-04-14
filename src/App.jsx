@@ -29,6 +29,7 @@ export default function TileQuiz() {
     }
   ]);
   const [nextId, setNextId] = useState(2);
+  const [errors, setErrors] = useState({});
 
   const updateMaterial = (id, field, value) => {
     setMaterials(materials.map(mat =>
@@ -52,11 +53,32 @@ export default function TileQuiz() {
   };
 
   const validateMaterials = () => {
-    return materials.every(mat => {
-      if (!mat.tileSize || mat.area === 0 || !mat.designation) return false;
-      if (mat.designation === 'walls' && mat.externalCorners === 0) return false;
-      return true;
+    const newErrors = {};
+    let isValid = true;
+
+    materials.forEach(mat => {
+      newErrors[mat.id] = {};
+      
+      if (!mat.tileSize) {
+        newErrors[mat.id].tileSize = true;
+        isValid = false;
+      }
+      if (!mat.designation) {
+        newErrors[mat.id].designation = true;
+        isValid = false;
+      }
+      if (mat.area === 0) {
+        newErrors[mat.id].area = true;
+        isValid = false;
+      }
+      if (mat.designation === 'walls' && mat.externalCorners === 0) {
+        newErrors[mat.id].externalCorners = true;
+        isValid = false;
+      }
     });
+
+    setErrors(newErrors);
+    return isValid;
   };
 
   const calculateTotal = () => {
@@ -99,7 +121,6 @@ export default function TileQuiz() {
 
   const handleSubmit = () => {
     if (!validateMaterials()) {
-      alert('Пожалуйста, заполните все поля');
       return;
     }
     setSubmitted(true);
@@ -200,14 +221,13 @@ export default function TileQuiz() {
                       <label className="block text-sm font-semibold mb-2">Внешние углы (м.п.)</label>
                       <input
                         type="number"
-                        value={material.externalCorners}
+                        value={material.externalCorners === 0 ? '' : material.externalCorners}
                         onChange={(e) => {
-                          const value = parseFloat(e.target.value);
-                          if (!isNaN(value) && value >= 0) {
+                            let value = parseFloat(e.target.value) || 0;
+                            if (value < 0) value = 0;
                             const rounded = Math.round(value * 100) / 100;
                             updateMaterial(material.id, 'externalCorners', rounded);
-                          }
-                        }}
+                          }}
                         step="0.01"
                         min="0"
                         className="w-full p-2 border rounded shadow-sm"
