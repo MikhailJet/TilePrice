@@ -237,8 +237,8 @@ export default function TileQuiz() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 font-sans">
-      <div className="max-w-2xl w-full bg-white p-8">
+    <div className="min-h-screen flex items-center justify-center p-1 sm:p-4 font-sans">
+      <div className="max-w-2xl w-full bg-white p-1 sm:p-6 md:p-8">
         
         {/* ШАГ 1: Выбор первой комнаты */}
         {step === 'selectFirstRoom' && (
@@ -266,9 +266,9 @@ export default function TileQuiz() {
             <h2 className="text-2xl font-bold mb-6 text-center">Расчет стоимости плитки</h2>
             
             {/* Все комнаты для редактирования */}
-            <div className="space-y-6 mb-6 ">
+            <div className="space-y-3 sm:space-y-4 md:space-y-6 mb-4 sm:mb-5 md:mb-6 ">
               {rooms.map((room) => (
-                <div key={room.id} className="shadow-lg border-gray-200 rounded-xl p-6 bg-gray-100 relative">
+                <div key={room.id} className="shadow-lg border-gray-200 rounded-xl p-4 sm:p-5 md:p-6 bg-gray-100 relative">
                   {/* Кнопка удаления комнаты */}
                   {rooms.length > 1 && (
                     <button
@@ -282,9 +282,9 @@ export default function TileQuiz() {
                   <h3 className="text-xl font-bold mb-6 text-gray-800 pr-8">{ROOM_TYPES[room.roomType].label}</h3>
                   
                   {/* Материалы комнаты */}
-                  <div className="space-y-6 mb-6">
+                  <div className="space-y-3 sm:space-y-4 md:space-y-6 mb-4 sm:mb-5 md:mb-6">
                     {room.materials.map((material, index) => (
-                      <div key={material.id} className="relative border-2 border-gray-200 rounded-xl p-6 bg-white" style={{ animation: 'fadeIn 0.4s ease-in' }}>
+                      <div key={material.id} className="relative border-2 border-gray-200 rounded-xl p-4 sm:p-5 md:p-6 bg-white" style={{ animation: 'fadeIn 0.4s ease-in' }}>
                         {/* Кнопка удаления */}
                         {room.materials.length > 1 && (
                           <button
@@ -415,9 +415,9 @@ export default function TileQuiz() {
 
             {/* Селектор для добавления новой комнаты */}
             { (
-              <div className={`border-2 border-gray-400 rounded-xl p-6 bg-gray-50 transition-all duration-500 ease-in overflow-hidden ${
+              <div className={`border-2 border-gray-400 rounded-xl p-4 sm:p-5 md:p-6 bg-gray-50 transition-all duration-500 ease-in overflow-hidden ${
                     showAddRoomSelector
-                    ? 'mb-6 max-h-96 opacity-100'
+                    ? 'mb-4 sm:mb-5 md:mb-6 max-h-96 opacity-100'
                     : 'max-h-0 opacity-0'
                     }`}>
                 <h3 className="text-lg font-semibold mb-4">Выберите тип комнаты:</h3>
@@ -448,11 +448,11 @@ export default function TileQuiz() {
           const { total, allRooms } = calculateTotal();
           return (
             <div>
-              <h2 className="text-2xl font-bold mb-6 text-center">Итоговый расчет</h2>
+              <h2 className="text-2xl font-bold mb-4 sm:mb-5 md:mb-6 text-center">Итоговый расчет</h2>
               
-              <div className="space-y-6 mb-6">
+              <div className="space-y-3 sm:space-y-4 md:space-y-6 mb-4 sm:mb-5 md:mb-6">
                 {allRooms.map((roomData, idx) => (
-                  <div key={idx} className="bg-gray-50 p-4 rounded-xl border border-gray-200">
+                  <div key={idx} className="bg-gray-50 p-3 sm:p-4 md:p-5 rounded-xl border border-gray-200">
                     <h3 className="font-bold text-lg mb-3">{roomData.roomType}</h3>
                     <div className="space-y-2">
                       {roomData.materials.map((item, matIdx) => (
@@ -476,7 +476,7 @@ export default function TileQuiz() {
                 ))}
               </div>
 
-              <div className="bg-gray-100 p-4 rounded-xl border-2 border-gray-200 mb-6">
+              <div className="bg-gray-100 p-3 sm:p-4 md:p-5 rounded-xl border-2 border-gray-200 mb-4 sm:mb-5 md:mb-6">
                 <p className="text-2xl font-bold text-center">Общая стоимость: <span className="text-gray-950">{total}₾</span></p>
               </div>
 
