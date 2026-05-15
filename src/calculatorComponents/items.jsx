@@ -32,7 +32,7 @@ function Items({
       groutType: "epoxy",
       slopeType: "",
       slopeLength: 0,
-      hole: 0,
+
       baseboardEnabled: false,
       baseboardLength: 0,
       externalCornersCount: 0,
@@ -40,6 +40,9 @@ function Items({
       shelfEnabled: false,
       shelfCount: 0,
     };
+    if (room.roomType === "room" || room.roomType === "bath") {
+      newMaterial.hole = 0;
+    }
 
     // Инициализируем специфичные для поверхности поля
     if (itemId === "backsplash") {
@@ -293,23 +296,30 @@ function Items({
         <div className="border-2 border-gray-400 rounded-xl p-4 sm:p-5 md:p-6 bg-gray-50 mb-6">
           <h4 className="text-lg font-semibold mb-4">Добавить поверхность:</h4>
           <div className="space-y-2">
-            {Object.values(ITEM_TYPES).map((item) => (
-              <button
-                key={item.id}
-                onClick={() => addItem(item.id)}
-                className="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition"
-              >
-                {item.label}
-              </button>
-            ))}
+            {Object.values(ITEM_TYPES)
+              .filter((item) => {
+                // Если это кухня/комната ("room"), показываем всё
+                if (room.roomType === "room") return true;
+                // Для остальных (ванная, балкон) — только пол и стены
+                return item.id === "floor" || item.id === "walls";
+              })
+              .map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => addItem(item.id)}
+                  className="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 px-4 rounded-lg transition"
+                >
+                  {item.label}
+                </button>
+              ))}
           </div>
+
           <button
             onClick={() => {
               setItems(false);
               setCurrentRoomId(null);
-              // Remove the room if no materials added yet (new room)
-              const room = rooms.find((r) => r.id === currentRoomId);
-              if (room && room.materials.length === 0) {
+              const currentRoom = rooms.find((r) => r.id === currentRoomId);
+              if (currentRoom && currentRoom.materials.length === 0) {
                 setRooms((prev) => prev.filter((r) => r.id !== currentRoomId));
               }
             }}

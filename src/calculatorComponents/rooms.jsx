@@ -139,11 +139,7 @@ function Rooms({ step, setStep, onCalculate }) {
     rooms.forEach((room) => {
       room.materials.forEach((mat) => {
         newErrors[mat.id] = {};
-        if (
-          mat.surface === "floor" ||
-          mat.surface === "walls" ||
-          mat.surface === "both"
-        ) {
+        if (mat.surface === "floor" || mat.surface === "walls") {
           if (!mat.tileSize) {
             newErrors[mat.id].tileSize = true;
             isValid = false;
@@ -167,9 +163,7 @@ function Rooms({ step, setStep, onCalculate }) {
           }
           // area обязательна только для поверхностей, которые имеют площадь
           if (
-            (mat.surface === "walls" ||
-              mat.surface === "floor" ||
-              mat.surface === "both") &&
+            (mat.surface === "walls" || mat.surface === "floor") &&
             !(+mat.area > 0)
           ) {
             newErrors[mat.id].area = true;
@@ -178,15 +172,13 @@ function Rooms({ step, setStep, onCalculate }) {
           if (
             mat.surface !== "product" &&
             !(+mat.hole > 0) &&
-            room.roomType !== "room"
+            room.roomType !== "room" &&
+            room.roomType !== "balcony"
           ) {
             newErrors[mat.id].hole = true;
             isValid = false;
           }
-          if (
-            (mat.surface === "walls" || mat.surface === "both") &&
-            mat.externalCorners === 0
-          ) {
+          if (mat.surface === "walls" && mat.externalCorners === 0) {
             newErrors[mat.id].externalCorners = true;
             isValid = false;
           }
@@ -223,11 +215,25 @@ function Rooms({ step, setStep, onCalculate }) {
   };
 
   const submitCalculation = () => {
-    if (!validateCurrentMaterials()) {
-      return;
+    if (!validateCurrentMaterials()) return;
+    // Create a copy of rooms and add a "virtual" room for standalone products
+    // OR add products to the rooms array if that's what calculation.js expects.
+    const dataToCalculate = [...rooms];
+    if (products.length > 0) {
+      dataToCalculate.push({
+        roomType: "products_section", // Or a type your constants support
+        materials: [],
+        products: products.map((p) => ({
+          type: p.productType,
+          count: p.count,
+          size: p.sinkSize,
+        })),
+      });
     }
+
+    
     setShowAddRoomSelector(false);
-    onCalculate(rooms);
+    onCalculate(dataToCalculate);
   };
 
   return (
@@ -365,8 +371,8 @@ function Rooms({ step, setStep, onCalculate }) {
                             }
                             className="input-base"
                           >
-                            <option value="upTo120">Ширина до 120 см</option>
-                            <option value="over120">Ширина более 120 см</option>
+                            <option value="upTo120">Длина до 120 см</option>
+                            <option value="over120">Длина более 120 см</option>
                           </select>
                         </div>
                       )}
