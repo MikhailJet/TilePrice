@@ -38,7 +38,7 @@ const Bathroom = ({ material, room, updateMaterial, errors }) => {
         <div>
           <div className="mb-4">
             <label className="block text-sm font-semibold mb-2">
-              Откосы на дверях или окнах, (м.п.)
+              Откосы, (м.п.)
             </label>
             <input
               type="number"
@@ -175,7 +175,7 @@ const Bathroom = ({ material, room, updateMaterial, errors }) => {
                         room.id,
                         material.id,
                         "showerTrayType",
-                        "evenFloor",
+                        "flatFloor",
                       );
                     }
                   }}

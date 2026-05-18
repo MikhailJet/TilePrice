@@ -13,7 +13,6 @@ export const TILE_PRICES = {
   "менее чем 600x150": 95,
 };
 
-
 export const TILE_ROOM_PRICES = {
   "1200x600, 60x60": 32,
   "1200x200, 1000x200": 40,
@@ -22,6 +21,11 @@ export const TILE_ROOM_PRICES = {
   "1000x1000, 800x800": 40,
   "600x150": 60,
   "менее чем 600x150": 90,
+};
+
+export const GROUT_LABELS = {
+  epoxy: "Эпоксидная",
+  cement: "Цементная",
 };
 
 export const TILE_ROOM_EPOXY_PRICES = {
@@ -44,25 +48,43 @@ export const BATHROOM_PRICES = {
   windowReveal: 85,
   shelf: 100,
   bathroomInstall: 350,
-  showerTray: { flatFloor: 300, borderWithSlope: 400 },
+  showerTray: {
+    price: { flatFloor: 300, borderWithSlope: 400 },
+    labels: {
+      flatFloor: "Ровный пол с разуклонкой",
+      borderWithSlope: "Бортик с разуклонкой (конверт)",
+    },
+  },
 };
 
 export const ROOM_PRICES = {
   hole: GENERAL_PRICES.hole,
   externalСorner: GENERAL_PRICES.externalСorner,
-  isExtraTileType: 1.2, // Coefficient for complex laying or relief tiles
+  isExtraTileType: { price: 1.2, label: "Сложная укладка" },
 };
 
-export const BALCONY_PRICES = { 
-  slopeType: {toTrap: 1.2, unified: 1}, // Coefficients for slope types
-  baseboard: 50, // 
+export const BALCONY_PRICES = {
+  slopeType: {
+    price: {
+      toTrap: 1.2,
+      unified: 1,
+    },
+    labels: { toTrap: "Уклон к трапу", unified: "Единый уклон (от квартиры)" },
+  },
+  baseboard: 50,
   externalBaseboardCorners: 10,
 };
 
 export const EXTRA_ITEM_PRICES = {
   countertop: 100,
   windowsill: 100,
-  backsplash: { beforeKitchen: 50, afterKitchen: 80 },
+  backsplash: {
+    price: { beforeKitchen: 50, afterKitchen: 80 },
+    labels: {
+      beforeKitchen: "Монтаж до установки кухни",
+      afterKitchen: "Монтаж после установки кухни",
+    },
+  },
   island: "Точная стоимость по запросу, от 1500$",
 };
 
@@ -83,7 +105,11 @@ export const ITEM_TYPES = {
 };
 
 export const PRODUCTS_TYPES = {
-  sink: { label: "Раковина из керамогранита", id: "sink" },
+  sink: {
+    label: "Раковина из керамогранита",
+    id: "sink",
+    options: { upTo120: "до 120 см", over120: "более 120 см" },
+  },
   installationButton: {
     label: "Кнопка для инсталляции",
     id: "installationButton",
