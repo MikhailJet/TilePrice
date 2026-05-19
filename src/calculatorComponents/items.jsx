@@ -30,7 +30,7 @@ function Items({
       area: 0,
       externalCorners: 0,
       groutType: "epoxy",
-      slopeType: "",
+      slopeType: "none",
       slopeLength: 0,
 
       baseboardEnabled: false,

@@ -4,9 +4,12 @@ import {
   ROOM_TYPES,
   CORNER_PRICES,
   TILE_SIZES,
+  MIN_ORDER_AMOUNT,
 } from "../constants";
 import Items from "./items.jsx";
 import { PRODUCTS_TYPES } from "../constants";
+import ProductMedia from "./ui/ProductMedia.jsx";
+import { calculateTotal } from "./calculation.js";
 
 function Rooms({ step, setStep, onCalculate }) {
   const [rooms, setRooms] = useState([]);
@@ -18,6 +21,7 @@ function Rooms({ step, setStep, onCalculate }) {
   const [items, setItems] = useState(false);
   const [currentRoomId, setCurrentRoomId] = useState(null);
   const [errors, setErrors] = useState({});
+  const [submitError, setSubmitError] = useState(null);
 
   const addRoom = (roomType) => {
     const newRoom = {
@@ -45,6 +49,13 @@ function Rooms({ step, setStep, onCalculate }) {
       }
       return nextRooms;
     });
+    // If the removed room was the one with an open surface picker, close
+    // the picker — otherwise `items` stays true and gates off the bottom
+    // "Добавить комнату" / "Рассчитать стоимость" buttons.
+    if (currentRoomId === roomId) {
+      setItems(false);
+      setCurrentRoomId(null);
+    }
   };
 
   const handleAddMaterial = (roomId) => {
@@ -148,15 +159,6 @@ function Rooms({ step, setStep, onCalculate }) {
             newErrors[mat.id].surface = true;
             isValid = false;
           }
-          if (
-            room.roomType === "balcony" &&
-            mat.surface === "floor" &&
-            mat.slopeType === ""
-          ) {
-            newErrors[mat.id].slopeType = true;
-            isValid = false;
-          }
-
           if (mat.baseboardEnabled && !(+mat.baseboardLength > 0)) {
             newErrors[mat.id].baseboardLength = true;
             isValid = false;
@@ -171,6 +173,7 @@ function Rooms({ step, setStep, onCalculate }) {
           }
           if (
             mat.surface !== "product" &&
+            mat.surface !== "floor" &&
             !(+mat.hole > 0) &&
             room.roomType !== "room" &&
             room.roomType !== "balcony"
@@ -178,9 +181,11 @@ function Rooms({ step, setStep, onCalculate }) {
             newErrors[mat.id].hole = true;
             isValid = false;
           }
-          if (mat.surface === "walls" && mat.externalCorners === 0) {
+          {
+            /***if (mat.surface === "walls" && mat.externalCorners === 0) {
             newErrors[mat.id].externalCorners = true;
             isValid = false;
+          }*/
           }
         } else if (mat.surface === "backsplash") {
           if (!mat.backsplashLength) {
@@ -215,13 +220,14 @@ function Rooms({ step, setStep, onCalculate }) {
   };
 
   const submitCalculation = () => {
-    if (!validateCurrentMaterials()) return;
-    // Create a copy of rooms and add a "virtual" room for standalone products
-    // OR add products to the rooms array if that's what calculation.js expects.
+    if (!validateCurrentMaterials()) {
+      setSubmitError("Заполните поля согласно требованиям");
+      return;
+    }
     const dataToCalculate = [...rooms];
     if (products.length > 0) {
       dataToCalculate.push({
-        roomType: "products_section", // Or a type your constants support
+        roomType: "products_section",
         materials: [],
         products: products.map((p) => ({
           type: p.productType,
@@ -231,7 +237,15 @@ function Rooms({ step, setStep, onCalculate }) {
       });
     }
 
-    
+    const { total } = calculateTotal(dataToCalculate);
+    if (total < MIN_ORDER_AMOUNT) {
+      setSubmitError(
+        `Минимальная сумма заказа - ${MIN_ORDER_AMOUNT}$, выберите еще позиции`,
+      );
+      return;
+    }
+
+    setSubmitError(null);
     setShowAddRoomSelector(false);
     onCalculate(dataToCalculate);
   };
@@ -243,27 +257,29 @@ function Rooms({ step, setStep, onCalculate }) {
         className={`${showProductSelector ? "filter blur-md" : ""}`}
         aria-hidden={showProductSelector}
       >
-        <h1 className="text-3xl font-bold mb-2 text-center">
+        <h1 className="text-3xl font-bold mb-6 text-center">
           Расчет стоимости плитки
         </h1>
-        <h2 className="text-xl text-gray-600 mb-8 text-center">
-          Где требуется укладка?
-        </h2>
 
         {products.length === 0 &&
           rooms.length === 0 &&
           !items &&
           !showProductSelector && (
-            <div className="space-y-3 mb-3">
-              {Object.values(ROOM_TYPES).map((roomType) => (
-                <button
-                  key={roomType.id}
-                  onClick={() => addRoom(roomType.id)}
-                  className="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition"
-                >
-                  {roomType.label}
-                </button>
-              ))}
+            <div>
+              <h2 className="text-xl text-gray-600 mt-6 mb-6 text-center">
+                Где требуется укладка?
+              </h2>
+              <div className="space-y-3 mb-3">
+                {Object.values(ROOM_TYPES).map((roomType) => (
+                  <button
+                    key={roomType.id}
+                    onClick={() => addRoom(roomType.id)}
+                    className="w-full bg-gray-700 hover:bg-gray-800 text-white font-semibold py-3 px-6 rounded-lg transition"
+                  >
+                    {roomType.label}
+                  </button>
+                ))}
+              </div>
             </div>
           )}
 
@@ -442,13 +458,20 @@ function Rooms({ step, setStep, onCalculate }) {
         {(rooms.length > 0 || items || products.length !== 0) &&
           !items &&
           !showAddRoomSelector && (
-            <div className="flex gap-3 mb-6">
-              <button
-                onClick={submitCalculation}
-                className="flex-1 bg-gray-950 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition"
-              >
-                Рассчитать стоимость
-              </button>
+            <div className="mb-6">
+              {submitError && (
+                <p className="text-red-500 text-sm text-center mb-2">
+                  {submitError}
+                </p>
+              )}
+              <div className="flex gap-3">
+                <button
+                  onClick={submitCalculation}
+                  className="flex-1 bg-gray-950 hover:bg-gray-700 text-white font-semibold py-3 px-4 rounded-lg transition"
+                >
+                  Рассчитать стоимость
+                </button>
+              </div>
             </div>
           )}
       </div>
@@ -468,21 +491,19 @@ function Rooms({ step, setStep, onCalculate }) {
           >
             <div className="bg-white rounded-xl p-4 sm:p-6 md:p-8 max-h-[90vh] overflow-auto">
               <h4 className="text-lg font-semibold mb-4">Выберите изделие</h4>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
                 {Object.values(PRODUCTS_TYPES).map((product) => (
                   <div
                     key={product.id}
                     className="border border-gray-200 rounded-xl p-4 flex flex-col items-center bg-white hover:border-indigo-300 transition"
                   >
-                    <div className="w-full h-28 bg-gray-200 rounded-lg mb-3 flex items-center justify-center text-gray-400">
-                      Фото
-                    </div>
+                    <ProductMedia media={product.media} alt={product.label} />
                     <span className="font-semibold text-center mb-3">
                       {product.label}
                     </span>
                     <button
                       onClick={() => handleProductSelect(product.id)}
-                      className="w-full bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
+                      className="w-full mt-auto bg-indigo-600 text-white py-2 rounded-lg hover:bg-indigo-700 transition"
                     >
                       Добавить
                     </button>

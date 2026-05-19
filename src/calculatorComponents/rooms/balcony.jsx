@@ -19,24 +19,20 @@ const Balcony = ({ material, room, updateMaterial, errors }) => {
       <div className="mb-4">
         <label className="block text-sm font-semibold mb-2">Уклон</label>
         <select
-          value={material.slopeType ?? ""}
+          value={material.slopeType || "none"}
           onChange={(e) =>
             updateMaterial(room.id, material.id, "slopeType", e.target.value)
           }
           className="input-base"
         >
-          <option value="" disabled hidden>
-            Выберите тип уклона
-          </option>
-          <option value="toTrap">К трапу</option>
-          <option value="unified">Единый (от квартиры)</option>
+          <option value="none">Без уклона</option>
+          <option value="unified">Единый уклон (от квартиры)</option>
+          <option value="toTrap">Уклон к трапу</option>
         </select>
       </div>
-      {errors[material.id]?.slopeType && (
-        <p className="text-red-500 text-xs mt-1">Выберите тип уклона</p>
-      )}
 
-      <div className="mb-4">
+      {/***** 2. ПЛИНТУС НА БАЛКОНЕ
+       <div className="mb-4">
         <div className="flex items-center justify-between bg-gray-50 p-2 rounded-lg border border-gray-100">
           <div className="flex items-center gap-3">
             <Toggle
@@ -112,7 +108,7 @@ const Balcony = ({ material, room, updateMaterial, errors }) => {
             )}
           </div>
         )}
-      </div>
+      </div> ***/}
     </>
   );
 };

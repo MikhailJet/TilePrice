@@ -108,27 +108,34 @@ export function calculateTotal(rooms = []) {
       );
       const areaCost = (Number(mat.area) || 0) * unitPrice;
 
-      // Unified area-coefficient modifiers — each computed against the base
-      // areaCost and tracked as { label, delta }. coef === 1 still pushes a
-      // modifier (label-only, delta = 0) so the chosen option stays visible
-      // even when it adds nothing. areaCost itself is NOT mutated — it stays
-      // as the base "area × unitPrice" for display.
+      // Area-related modifiers, all tracked as { label, delta } so Results.jsx
+      // renders them identically. Two shapes are supported:
+      //   - applyCoef: multiplicative on areaCost (e.g. "Сложная укладка" ×1.2)
+      //   - applyFlat: fixed price added to cost     (e.g. slope "Уклон к трапу" = 200$)
+      // Both push a row even when delta = 0 so the chosen option stays visible.
       const modifiers = [];
       const applyCoef = (def, key) => {
         if (!def) return;
         const coef = key ? def.price?.[key] : def.price;
-        if (!coef) return;
+        if (coef == null) return;
         const label = key ? def.labels?.[key] : def.label;
         const delta =
           coef === 1 ? 0 : Math.round(areaCost * (coef - 1) * 100) / 100;
         modifiers.push({ label, delta });
+      };
+      const applyFlat = (def, key) => {
+        if (!def) return;
+        const price = key ? def.price?.[key] : def.price;
+        if (price == null) return;
+        const label = key ? def.labels?.[key] : def.label;
+        modifiers.push({ label, delta: price });
       };
 
       if (room.roomType === "room" && mat.isExtraTileType) {
         applyCoef(ROOM_PRICES.isExtraTileType);
       }
       if (room.roomType === "balcony" && mat.slopeType) {
-        applyCoef(BALCONY_PRICES.slopeType, mat.slopeType);
+        applyFlat(BALCONY_PRICES.slopeType, mat.slopeType);
       }
 
       const modifierDelta = modifiers.reduce((sum, m) => sum + m.delta, 0);

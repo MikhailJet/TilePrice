@@ -3,6 +3,8 @@ export const GENERAL_PRICES = {
   hole: 10,
 };
 
+export const MIN_ORDER_AMOUNT = 500;
+
 export const TILE_PRICES = {
   "1200x600, 60x60": 47,
   "1200x200, 1000x200": 60,
@@ -64,12 +66,15 @@ export const ROOM_PRICES = {
 };
 
 export const BALCONY_PRICES = {
+  // slopeType is a flat per-material fee added to cost (not a coefficient).
+  // "none" = no slope work; toTrap/unified add a fixed amount.
   slopeType: {
-    price: {
-      toTrap: 1.2,
-      unified: 1,
+    price: { none: 0, unified: 150, toTrap: 200 },
+    labels: {
+      none: "Без уклона",
+      unified: "Единый уклон (от квартиры)",
+      toTrap: "Уклон к трапу",
     },
-    labels: { toTrap: "Уклон к трапу", unified: "Единый уклон (от квартиры)" },
   },
   baseboard: 50,
   externalBaseboardCorners: 10,
@@ -108,16 +113,60 @@ export const PRODUCTS_TYPES = {
   sink: {
     label: "Раковина из керамогранита",
     id: "sink",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
     options: { upTo120: "до 120 см", over120: "более 120 см" },
   },
   installationButton: {
     label: "Кнопка для инсталляции",
     id: "installationButton",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
   },
-  hiddenVentilation: { label: "Скрытая вентиляция", id: "hiddenVentilation" },
-  socket: { label: "Розетка из керамогранита", id: "socket" },
-  switch: { label: "Выключатель из керамогранита", id: "switch" },
-  hiddenHook: { label: "Скрытый крючок-вешалка", id: "hiddenHook" },
+  hiddenVentilation: {
+    label: "Скрытая вентиляция",
+    id: "hiddenVentilation",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
+  },
+  socket: {
+    label: "Розетка из керамогранита",
+    id: "socket",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
+  },
+  switch: {
+    label: "Выключатель из керамогранита",
+    id: "switch",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
+  },
+  hiddenHook: {
+    label: "Скрытый крючок-вешалка",
+    id: "hiddenHook",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
+  },
+  paperHolder: {
+    label: "Держатель для туалетной бумаги",
+    id: "paperHolder",
+    media: {
+      video: "/assets/Products/installationButton.mp4",
+      photo: "/assets/Products/installationButton.jpg",
+    },
+  },
 };
 
 // constants.js
@@ -128,4 +177,5 @@ export const PRODUCT_PRICES = {
   socket: 60,
   switch: 40,
   hiddenHook: 40,
+  paperHolder: 300,
 };
