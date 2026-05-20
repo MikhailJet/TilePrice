@@ -219,11 +219,43 @@ function Rooms({ step, setStep, onCalculate }) {
     setErrors({});
   };
 
-  const submitCalculation = () => {
+  const submitCalculation = async () => {
     if (!validateCurrentMaterials()) {
       setSubmitError("Заполните поля согласно требованиям");
       return;
     }
+
+    const token = sessionStorage.getItem("calc_token");
+
+    if (!token) {
+      setSubmitError(
+        "Доступ ограничен. Пожалуйста, запросите актуальную ссылку у менеджера.",
+      );
+      return;
+    }
+
+    try {
+      const response = await fetch("/.netlify/functions/validate-token", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token }),
+      });
+
+      const result = await response.json();
+
+      if (!result.valid) {
+        // Если токен просрочен — стираем его, чтобы заблокировать доступ навсегда
+        sessionStorage.removeItem("calc_token");
+        setSubmitError(
+          "Срок действия вашей индивидуальной ссылки истек. Запросите новую ссылку.",
+        );
+        return;
+      }
+    } catch (error) {
+      setSubmitError("Ошибка проверки безопасности. Попробуйте еще раз.");
+      return;
+    }
+
     const dataToCalculate = [...rooms];
     if (products.length > 0) {
       dataToCalculate.push({
