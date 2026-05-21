@@ -1,3 +1,5 @@
+import { formatMoney } from "./formatMoney";
+
 function numberRooms(allRooms) {
   const counts = {};
   const totals = {};
@@ -61,32 +63,32 @@ function formatMaterialDetails(m, lines) {
       lines.push(`    ${m.note}`);
     } else if (m.length > 0) {
       lines.push(
-        `    Длина: ${m.length} м.п. × ${m.lengthUnitPrice}$ = ${m.length * m.lengthUnitPrice}$`,
+        `    Длина: ${m.length} м.п. × ${formatMoney(m.lengthUnitPrice)}$ = ${formatMoney(m.length * m.lengthUnitPrice)}$`,
       );
     }
     if (m.holeCost > 0) {
-      const unit = m.holeCost / (m.hole || 1);
-      lines.push(`    Отверстия: ${m.hole} шт. × ${unit}$ = ${m.holeCost}$`);
+      const unit = formatMoney(m.holeCost / (m.hole || 1));
+      lines.push(`    Отверстия: ${m.hole} шт. × ${unit}$ = ${formatMoney(m.holeCost)}$`);
     }
   } else {
     if (m.area > 0) {
-      lines.push(`    Площадь: ${m.area} м² × ${m.unitPrice}$ = ${m.areaCost}$`);
+      lines.push(`    Площадь: ${m.area} м² × ${formatMoney(m.unitPrice)}$ = ${formatMoney(m.areaCost)}$`);
     }
     if (m.modifiers) {
       for (const mod of m.modifiers) {
         if (parseFloat(mod.delta) > 0) {
-          lines.push(`    ${mod.label}: +${mod.delta}$`);
+          lines.push(`    ${mod.label}: +${formatMoney(mod.delta)}$`);
         }
       }
     }
     if (m.cornerCost > 0) {
       lines.push(
-        `    Внешние углы: ${m.corners} м.п. × ${m.cornerUnitPrice}$ = ${m.cornerCost}$`,
+        `    Внешние углы: ${m.corners} м.п. × ${formatMoney(m.cornerUnitPrice)}$ = ${formatMoney(m.cornerCost)}$`,
       );
     }
     if (m.holeCost > 0) {
-      const unit = m.holeCost / (m.hole || 1);
-      lines.push(`    Отверстия: ${m.hole} шт. × ${unit}$ = ${m.holeCost}$`);
+      const unit = formatMoney(m.holeCost / (m.hole || 1));
+      lines.push(`    Отверстия: ${m.hole} шт. × ${unit}$ = ${formatMoney(m.holeCost)}$`);
     }
   }
 
@@ -94,7 +96,7 @@ function formatMaterialDetails(m, lines) {
     for (const e of m.extras) {
       const type = e.type ? ` (${e.type})` : "";
       lines.push(
-        `    + ${e.label}${type}: ${e.qty} ${e.qtyLabel} × ${e.unitPrice}$ = ${e.delta}$`,
+        `    + ${e.label}${type}: ${e.qty} ${e.qtyLabel} × ${formatMoney(e.unitPrice)}$ = ${formatMoney(e.delta)}$`,
       );
     }
   }
@@ -107,7 +109,7 @@ function formatProducts(products, lines) {
     const detail = p.detail ? ` (${p.detail})` : "";
     if (p.unitPrice > 0) {
       lines.push(
-        `    ${p.description}${detail} — ${p.count} шт. × ${p.unitPrice}$ = ${p.cost}$`,
+        `    ${p.description}${detail} — ${p.count} шт. × ${formatMoney(p.unitPrice)}$ = ${formatMoney(p.cost)}$`,
       );
     } else {
       lines.push(`    ${p.description}${detail} — ${p.count} шт.`);
@@ -129,7 +131,7 @@ export function buildClientMessage(results) {
     lines.push("");
   }
 
-  lines.push(`💰 ИТОГО: ${results.total}$`);
+  lines.push(`💰 ИТОГО: ${formatMoney(results.total)}$`);
   return lines.join("\n");
 }
 
@@ -145,10 +147,10 @@ export function buildDetailsText(results) {
       formatProducts(room.products, lines);
     }
     lines.push("");
-    lines.push(`  Итого ${room.displayName}: ${roomSubtotal(room)}$`);
+    lines.push(`  Итого ${room.displayName}: ${formatMoney(roomSubtotal(room))}$`);
     lines.push("");
   }
 
-  lines.push(`💰 ИТОГО: ${results.total}$`);
+  lines.push(`💰 ИТОГО: ${formatMoney(results.total)}$`);
   return lines.join("\n");
 }

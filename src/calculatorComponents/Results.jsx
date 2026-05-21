@@ -1,5 +1,6 @@
 import React from "react";
 import SharingSection from "./SharingSection";
+import { formatMoney } from "../utils/formatMoney";
 
 function Row({ label, sublabel, value, delta }) {
   const hasDelta = parseFloat(delta) > 0;
@@ -39,21 +40,22 @@ function SectionLabel({ children }) {
 }
 
 function MaterialCard({ item, isAdmin }) {
+  const holeUnit = formatMoney(item.holeCost / (item.hole || 1));
+
   const lengthValue = isAdmin
-    ? `${item.length} м.п. × ${item.lengthUnitPrice}$ = ${item.length * item.lengthUnitPrice}$`
+    ? `${item.length} м.п. × ${formatMoney(item.lengthUnitPrice)}$ = ${formatMoney(item.length * item.lengthUnitPrice)}$`
     : `${item.length} м.п.`;
 
   const areaValue = isAdmin
-    ? `${item.area} м² × ${item.unitPrice}$ = ${item.areaCost}$`
+    ? `${item.area} м² × ${formatMoney(item.unitPrice)}$ = ${formatMoney(item.areaCost)}$`
     : `${item.area} м²`;
 
-  const holeUnit = item.holeCost / (item.hole || 1);
   const holeValue = isAdmin
-    ? `${item.hole} шт. × ${holeUnit}$ = ${item.holeCost}$`
+    ? `${item.hole} шт. × ${holeUnit}$ = ${formatMoney(item.holeCost)}$`
     : `${item.hole} шт.`;
 
   const cornerValue = isAdmin
-    ? `${item.corners} м.п. × ${item.cornerUnitPrice}$ = ${item.cornerCost}$`
+    ? `${item.corners} м.п. × ${formatMoney(item.cornerUnitPrice)}$ = ${formatMoney(item.cornerCost)}$`
     : `${item.corners} м.п.`;
 
   return (
@@ -104,8 +106,8 @@ function MaterialCard({ item, isAdmin }) {
                   key={i}
                   label={e.label}
                   sublabel={e.type}
-                  value={`${e.qty} ${e.qtyLabel} × ${e.unitPrice}$`}
-                  delta={e.delta}
+                  value={`${e.qty} ${e.qtyLabel} × ${formatMoney(e.unitPrice)}$`}
+                  delta={formatMoney(e.delta)}
                 />
               ) : (
                 <Row
@@ -125,7 +127,7 @@ function MaterialCard({ item, isAdmin }) {
         <div className="px-4 py-2.5  border-t border-gray-200 flex justify-between items-center">
           <span className="text-sm font-semibold text-gray-950">Итого</span>
           <span className="font-bold text-gray-900 text-base">
-            {item.cost}$
+            {formatMoney(item.cost)}$
           </span>
         </div>
       )}
@@ -181,10 +183,10 @@ export default function Results({ results, onReset, isAdmin = false }) {
                       <div className="text-right shrink-0">
                         {p.unitPrice > 0 && (
                           <p className="text-sm text-gray-500">
-                            {p.count} шт. × {p.unitPrice}$
+                            {p.count} шт. × {formatMoney(p.unitPrice)}$
                           </p>
                         )}
-                        <p className="font-bold text-gray-900">{p.cost}$</p>
+                        <p className="font-bold text-gray-900">{formatMoney(p.cost)}$</p>
                       </div>
                     </div>
                   ))}
@@ -198,7 +200,7 @@ export default function Results({ results, onReset, isAdmin = false }) {
       {/* Grand total */}
       <div className="bg-gray-900 text-white rounded-2xl p-4 sm:p-5 text-center">
         <p className="text-sm text-gray-400 mb-1">Общая стоимость</p>
-        <p className="text-3xl sm:text-4xl font-bold">{results.total}$</p>
+        <p className="text-3xl sm:text-4xl font-bold">{formatMoney(results.total)}$</p>
       </div>
 
       <SharingSection results={results} />

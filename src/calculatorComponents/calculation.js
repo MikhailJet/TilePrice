@@ -14,6 +14,8 @@ import {
   GROUT_LABELS,
 } from "../constants";
 
+const round2 = (n) => Math.round(n * 100) / 100;
+
 export function calculateTotal(rooms = []) {
   let total = 0;
   const allRooms = [];
@@ -80,8 +82,8 @@ export function calculateTotal(rooms = []) {
             ? String(EXTRA_ITEM_PRICES.island)
             : undefined;
 
-        const holeCost = (Number(mat.hole) || 0) * (GENERAL_PRICES.hole || 0);
-        const cost = length * lengthUnitPrice + holeCost;
+        const holeCost = round2((Number(mat.hole) || 0) * (GENERAL_PRICES.hole || 0));
+        const cost = round2(length * lengthUnitPrice + holeCost);
 
         currentRoomData.materials.push({
           description,
@@ -106,7 +108,7 @@ export function calculateTotal(rooms = []) {
         mat.tileSize,
         mat.groutType,
       );
-      const areaCost = (Number(mat.area) || 0) * unitPrice;
+      const areaCost = round2((Number(mat.area) || 0) * unitPrice);
 
       // Area-related modifiers, all tracked as { label, delta } so Results.jsx
       // renders them identically. Two shapes are supported:
@@ -140,10 +142,10 @@ export function calculateTotal(rooms = []) {
 
       const modifierDelta = modifiers.reduce((sum, m) => sum + m.delta, 0);
       const cornerUnit = GENERAL_PRICES.externalСorner || 0;
-      const cornerCost = (Number(mat.externalCorners) || 0) * cornerUnit;
-      const holeCost = (Number(mat.hole) || 0) * (GENERAL_PRICES.hole || 0);
+      const cornerCost = round2((Number(mat.externalCorners) || 0) * cornerUnit);
+      const holeCost = round2((Number(mat.hole) || 0) * (GENERAL_PRICES.hole || 0));
 
-      cost += areaCost + modifierDelta + cornerCost + holeCost;
+      cost = round2(areaCost + modifierDelta + cornerCost + holeCost);
 
       const extras = [];
 
@@ -153,7 +155,7 @@ export function calculateTotal(rooms = []) {
           BATHROOM_PRICES.showerTray?.price?.[mat.showerTrayType];
         if (mat.showerTray && trayPrice) {
           const qty = mat.showerTrayCount || 1;
-          const delta = trayPrice * qty;
+          const delta = round2(trayPrice * qty);
           extras.push({
             label: "Душевой поддон",
             type:
@@ -170,7 +172,7 @@ export function calculateTotal(rooms = []) {
         if (mat.bathroomInstall && BATHROOM_PRICES.bathroomInstall) {
           const unitP = BATHROOM_PRICES.bathroomInstall;
           const qty = mat.bathroomCount || 1;
-          const delta = unitP * qty;
+          const delta = round2(unitP * qty);
           extras.push({
             label: "Монтаж ванны с экраном",
             qty,
@@ -184,7 +186,7 @@ export function calculateTotal(rooms = []) {
         if (mat.windowReveal) {
           const unitP = BATHROOM_PRICES.windowReveal;
           const qty = Number(mat.windowReveal);
-          const delta = unitP * qty;
+          const delta = round2(unitP * qty);
           extras.push({
             label: "Откосы",
             qty,
@@ -198,7 +200,7 @@ export function calculateTotal(rooms = []) {
         if (mat.shelfCount) {
           const unitP = BATHROOM_PRICES.shelf;
           const qty = Number(mat.shelfCount);
-          const delta = unitP * qty;
+          const delta = round2(unitP * qty);
           extras.push({
             label: "Полка из керамогранита",
             qty,
@@ -216,7 +218,7 @@ export function calculateTotal(rooms = []) {
         if (mat.baseboardLength) {
           const unitP = BALCONY_PRICES.baseboard;
           const qty = Number(mat.baseboardLength);
-          const delta = unitP * qty;
+          const delta = round2(unitP * qty);
           extras.push({
             label: "Плинтус",
             qty,
@@ -230,7 +232,7 @@ export function calculateTotal(rooms = []) {
         if (mat.externalBaseboardCornersCount > 0) {
           const unitP = BALCONY_PRICES.externalBaseboardCorners;
           const qty = Number(mat.externalBaseboardCornersCount);
-          const delta = unitP * qty;
+          const delta = round2(unitP * qty);
           extras.push({
             label: "Внешние углы плинтуса",
             qty,
@@ -284,11 +286,11 @@ export function calculateTotal(rooms = []) {
             // opened the dropdown. Option labels live on PRODUCTS_TYPES.
             const sizeKey = p.sinkSize || p.size || "upTo120";
             unitP = priceDef[sizeKey] || 0;
-            pCost = unitP * (p.count || 1);
+            pCost = round2(unitP * (p.count || 1));
             detail = productType?.options?.[sizeKey] || sizeKey;
           } else {
             unitP = priceDef;
-            pCost = priceDef * (p.count || 1);
+            pCost = round2(priceDef * (p.count || 1));
           }
         }
 
@@ -306,7 +308,7 @@ export function calculateTotal(rooms = []) {
     allRooms.push(currentRoomData);
   });
 
-  return { total, allRooms };
+  return { total: round2(total), allRooms };
 }
 
 export default calculateTotal;
