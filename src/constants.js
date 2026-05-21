@@ -179,3 +179,8 @@ export const PRODUCT_PRICES = {
   hiddenHook: 40,
   paperHolder: 300,
 };
+
+export const CONTACTS = {
+  telegramUsername: "Evgeniy_Batumi",
+  whatsappPhone: "995551166688",
+};

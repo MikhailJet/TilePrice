@@ -1,4 +1,5 @@
 import React from "react";
+import SharingSection from "./SharingSection";
 
 function Row({ label, sublabel, value, delta }) {
   const hasDelta = parseFloat(delta) > 0;
@@ -189,6 +190,8 @@ export default function Results({ results, onReset }) {
         <p className="text-sm text-gray-400 mb-1">Общая стоимость</p>
         <p className="text-3xl sm:text-4xl font-bold">{results.total}$</p>
       </div>
+
+      <SharingSection results={results} />
 
       <button
         onClick={onReset}

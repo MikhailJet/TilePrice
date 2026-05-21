@@ -6,6 +6,8 @@ import Results from "./calculatorComponents/Results.jsx";
 import { calculateTotal } from "./calculatorComponents/calculation";
 import AdminGenerator from "./generator/AdminGenerator";
 import { ROOM_TYPES } from "./constants";
+import { saveEstimate } from "./utils/sendToSheet";
+import { buildDetailsText } from "./utils/formatEstimate";
 
 export default function TileQuiz() {
   const [step, setStep] = useState("addMaterials");
@@ -16,7 +18,7 @@ export default function TileQuiz() {
   const [isAccessDenied, setIsAccessDenied] = useState(false); // Доступ заблокирован
 
   // === ОБНОВЛЕННЫЙ БЛОК: Строгая проверка токена при входе ===
-  useEffect(() => {
+   useEffect(() => {
     const checkAccess = async () => {
       const params = new URLSearchParams(window.location.search);
       const tokenFromUrl = params.get("t");
@@ -74,12 +76,19 @@ export default function TileQuiz() {
 
     // Запускаем проверку
     checkAccess();
-  }, []);
+  }, []); 
 
   const handleCalculate = (rooms) => {
     const { total, allRooms } = calculateTotal(rooms);
-    setResults({ total, allRooms });
+    const uuid = crypto.randomUUID();
+    const computed = { total, allRooms, uuid };
+    setResults(computed);
     setStep("results");
+    saveEstimate({
+      uuid,
+      total,
+      details: buildDetailsText(computed),
+    });
   };
 
   const handleReset = () => {
@@ -87,7 +96,7 @@ export default function TileQuiz() {
     setResults(null);
   };
 
-  const isGeneratorMode = window.location.search.includes("mode=generator");
+const isGeneratorMode = window.location.search.includes("mode=generator");
 
   // Режим генератора отдаем сразу, ему токены не нужны (у него свой пароль внутри)
   if (isGeneratorMode) {
@@ -128,7 +137,7 @@ export default function TileQuiz() {
         </div>
       </div>
     );
-  }
+  } 
 
   // 3. Если токен валидный — рендерится обычный рабочий калькулятор
   return (
