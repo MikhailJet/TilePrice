@@ -114,8 +114,8 @@ export const PRODUCTS_TYPES = {
     label: "Раковина из керамогранита",
     id: "sink",
     media: {
-      video: "/assets/Products/installationButton.mp4",
-      photo: "/assets/Products/installationButton.jpg",
+      video: "/assets/Products/sink.mp4",
+      photo: "/assets/Products/sink.jpg",
     },
     options: { upTo120: "до 120 см", over120: "более 120 см" },
   },
@@ -131,40 +131,40 @@ export const PRODUCTS_TYPES = {
     label: "Скрытая вентиляция",
     id: "hiddenVentilation",
     media: {
-      video: "/assets/Products/installationButton.mp4",
-      photo: "/assets/Products/installationButton.jpg",
+      video: "/assets/Products/hiddenVentilation.mp4",
+      photo: "/assets/Products/hiddenVentilation.jpg",
     },
   },
   socket: {
     label: "Розетка из керамогранита",
     id: "socket",
     media: {
-      video: "/assets/Products/installationButton.mp4",
-      photo: "/assets/Products/installationButton.jpg",
+      video: "/assets/Products/socket.mp4",
+      photo: "/assets/Products/socket.jpg",
     },
   },
   switch: {
     label: "Выключатель из керамогранита",
     id: "switch",
     media: {
-      video: "/assets/Products/installationButton.mp4",
-      photo: "/assets/Products/installationButton.jpg",
+      video: "/assets/Products/switch.mp4",
+      photo: "/assets/Products/switch.jpg",
     },
   },
   hiddenHook: {
     label: "Скрытый крючок-вешалка",
     id: "hiddenHook",
     media: {
-      video: "/assets/Products/installationButton.mp4",
-      photo: "/assets/Products/installationButton.jpg",
+      video: "/assets/Products/hiddenHook.mp4",
+      photo: "/assets/Products/hiddenHook.jpg",
     },
   },
   paperHolder: {
     label: "Держатель для туалетной бумаги",
     id: "paperHolder",
     media: {
-      video: "/assets/Products/installationButton.mp4",
-      photo: "/assets/Products/installationButton.jpg",
+      video: "/assets/Products/paperHolder.mp4",
+      photo: "/assets/Products/paperHolder.jpg",
     },
   },
 };

@@ -8,6 +8,7 @@ import AdminGenerator from "./generator/AdminGenerator";
 import { ROOM_TYPES } from "./constants";
 import { saveEstimate } from "./utils/sendToSheet";
 import { buildDetailsText } from "./utils/formatEstimate";
+import LoadingSquares from "./calculatorComponents/ui/LoadingSquares";
 
 export default function TileQuiz() {
   const [step, setStep] = useState("addMaterials");
@@ -80,17 +81,27 @@ export default function TileQuiz() {
     checkAccess();
   }, []); 
 
-  const handleCalculate = (rooms) => {
+  const handleCalculate = async (rooms) => {
+    setStep("calculating");
+    // Yield so React paints the loading state before CPU work starts
+    await new Promise((r) => setTimeout(r, 0));
+
     const { total, allRooms } = calculateTotal(rooms);
     const uuid = crypto.randomUUID();
     const computed = { total, allRooms, uuid };
     setResults(computed);
+
+    // Wait for sheet save AND a minimum 800ms (one full animation cycle)
+    await Promise.all([
+      saveEstimate({
+        uuid,
+        total,
+        details: buildDetailsText(computed),
+      }),
+      new Promise((r) => setTimeout(r, 800)),
+    ]);
+
     setStep("results");
-    saveEstimate({
-      uuid,
-      total,
-      details: buildDetailsText(computed),
-    });
   };
 
   const handleReset = () => {
@@ -109,9 +120,9 @@ const isGeneratorMode = window.location.search.includes("mode=generator");
   if (isCheckingAccess) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600 mx-auto mb-4"></div>
-          <p className="text-sm text-gray-500 font-medium">
+        <div className="flex flex-col items-center">
+          <LoadingSquares />
+          <p className="text-sm text-gray-500 font-medium mt-4">
             Проверка безопасности...
           </p>
         </div>
@@ -145,8 +156,17 @@ const isGeneratorMode = window.location.search.includes("mode=generator");
   return (
     <div className="min-h-screen flex items-center justify-center p-1 sm:p-4 font-sans">
       <div className="max-w-2xl w-full bg-white p-1 sm:p-6 md:p-8">
-        {step !== "results" && (
+        {step !== "results" && step !== "calculating" && (
           <Rooms step={step} setStep={setStep} onCalculate={handleCalculate} />
+        )}
+
+        {step === "calculating" && (
+          <div className="flex flex-col items-center justify-center py-20">
+            <LoadingSquares />
+            <p className="text-sm text-gray-500 font-medium mt-4">
+              Считаем стоимость...
+            </p>
+          </div>
         )}
 
         {step === "results" && results && (
