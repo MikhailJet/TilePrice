@@ -16,6 +16,7 @@ export default function TileQuiz() {
   // === СОСТОЯНИЯ ДЛЯ ПРОВЕРКИ ДОСТУПА ===
   const [isCheckingAccess, setIsCheckingAccess] = useState(true); // Пока идет запрос к Netlify
   const [isAccessDenied, setIsAccessDenied] = useState(false); // Доступ заблокирован
+  const [isAdmin, setIsAdmin] = useState(false); // Админ видит цены за каждую позицию
 
   // === ОБНОВЛЕННЫЙ БЛОК: Строгая проверка токена при входе ===
    useEffect(() => {
@@ -50,6 +51,7 @@ export default function TileQuiz() {
           // Токен живой! Сохраняем/обновляем в памяти
           sessionStorage.setItem("calc_token", token);
           setIsAccessDenied(false);
+          setIsAdmin(Boolean(result.isAdmin));
 
           // Стираем токен из адресной строки для красоты
           if (tokenFromUrl) {
@@ -148,7 +150,11 @@ const isGeneratorMode = window.location.search.includes("mode=generator");
         )}
 
         {step === "results" && results && (
-          <Results results={results} onReset={handleReset} />
+          <Results
+            results={results}
+            onReset={handleReset}
+            isAdmin={isAdmin}
+          />
         )}
       </div>
     </div>

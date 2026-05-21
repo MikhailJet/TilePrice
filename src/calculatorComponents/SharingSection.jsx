@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { buildClientMessage } from "../utils/formatEstimate";
-import { markEstimateSent } from "../utils/sendToSheet";
+import { markEstimateSent, markEstimateCopied } from "../utils/sendToSheet";
 import { CONTACTS } from "../constants";
 
 export default function SharingSection({ results }) {
@@ -12,11 +12,25 @@ export default function SharingSection({ results }) {
   const waUrl = `https://wa.me/${CONTACTS.whatsappPhone}?text=${encoded}`;
   const tgUrl = `https://t.me/${CONTACTS.telegramUsername}`;
 
+  const showCopiedToast = () => {
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2500);
+  };
+
+  const handleCopy = async () => {
+    try {
+      await navigator.clipboard.writeText(message);
+      showCopiedToast();
+      markEstimateCopied({ uuid: results.uuid });
+    } catch (err) {
+      console.warn("Clipboard write failed:", err);
+    }
+  };
+
   const handleTelegram = async () => {
     try {
       await navigator.clipboard.writeText(message);
-      setCopied(true);
-      setTimeout(() => setCopied(false), 2500);
+      showCopiedToast();
     } catch (err) {
       console.warn("Clipboard write failed:", err);
     }
@@ -76,14 +90,14 @@ export default function SharingSection({ results }) {
       </div>
       {copied && (
         <p className="text-xs text-center text-green-700 bg-green-50 border border-green-200 rounded-lg py-2">
-          Смета скопирована в буфер обмена — вставьте её в чат Telegram
+          Смета скопирована в буфер обмена
         </p>
       )}
       <button
-        onClick={() => setExpanded(false)}
+        onClick={handleCopy}
         className="w-full bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2.5 rounded-xl transition"
       >
-        Назад
+        Скопировать
       </button>
     </div>
   );

@@ -3,7 +3,7 @@ import SharingSection from "./SharingSection";
 
 function Row({ label, sublabel, value, delta }) {
   const hasDelta = parseFloat(delta) > 0;
-  const hasValue = parseFloat(value) > 0;
+  const hasValue = value !== undefined && value !== null && value !== "";
   return (
     <div className="flex justify-between items-start gap-4 py-0.5">
       <div className="shrink-0">
@@ -38,7 +38,102 @@ function SectionLabel({ children }) {
   );
 }
 
-export default function Results({ results, onReset }) {
+function MaterialCard({ item, isAdmin }) {
+  const lengthValue = isAdmin
+    ? `${item.length} м.п. × ${item.lengthUnitPrice}$ = ${item.length * item.lengthUnitPrice}$`
+    : `${item.length} м.п.`;
+
+  const areaValue = isAdmin
+    ? `${item.area} м² × ${item.unitPrice}$ = ${item.areaCost}$`
+    : `${item.area} м²`;
+
+  const holeUnit = item.holeCost / (item.hole || 1);
+  const holeValue = isAdmin
+    ? `${item.hole} шт. × ${holeUnit}$ = ${item.holeCost}$`
+    : `${item.hole} шт.`;
+
+  const cornerValue = isAdmin
+    ? `${item.corners} м.п. × ${item.cornerUnitPrice}$ = ${item.cornerCost}$`
+    : `${item.corners} м.п.`;
+
+  return (
+    <div className="bg-white rounded-xl border border-gray-200 overflow-hidden">
+      {/* Material title */}
+      <div className="bg-white px-4 py-2.5 bg-gray-100 border-b border-gray-200">
+        <p className="font-semibold text-gray-800">{item.description}</p>
+        {item.option && (
+          <p className="text-sm text-gray-500 mt-0.5">{item.option}</p>
+        )}
+      </div>
+
+      <div className="px-4 py-3 text-base space-y-1.5">
+        {item.length !== undefined ? (
+          <>
+            {item.note ? (
+              <p className="text-gray-500 italic">{item.note}</p>
+            ) : item.length > 0 ? (
+              <Row label="Длина" value={lengthValue} />
+            ) : null}
+            {item.hole > 0 && <Row label="Отверстия" value={holeValue} />}
+          </>
+        ) : (
+          <>
+            {item.area > 0 && <Row label="Площадь" value={areaValue} />}
+            {item.modifiers &&
+              item.modifiers.map((m, mi) =>
+                isAdmin ? (
+                  <Row key={mi} label={m.label} delta={m.delta} />
+                ) : (
+                  <Row key={mi} label={m.label} />
+                ),
+              )}
+            {item.corners > 0 && (
+              <Row label="Внешние углы" value={cornerValue} />
+            )}
+            {item.hole > 0 && <Row label="Отверстия" value={holeValue} />}
+          </>
+        )}
+
+        {/* Extras / add-ons */}
+        {item.extras && item.extras.length > 0 && (
+          <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
+            <SectionLabel>Дополнения</SectionLabel>
+            {item.extras.map((e, i) =>
+              isAdmin ? (
+                <Row
+                  key={i}
+                  label={e.label}
+                  sublabel={e.type}
+                  value={`${e.qty} ${e.qtyLabel} × ${e.unitPrice}$`}
+                  delta={e.delta}
+                />
+              ) : (
+                <Row
+                  key={i}
+                  label={e.label}
+                  sublabel={e.type}
+                  value={`${e.qty} ${e.qtyLabel}`}
+                />
+              ),
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* Material total — только для админа */}
+      {isAdmin && (
+        <div className="px-4 py-2.5  border-t border-gray-200 flex justify-between items-center">
+          <span className="text-sm font-semibold text-gray-950">Итого</span>
+          <span className="font-bold text-gray-900 text-base">
+            {item.cost}$
+          </span>
+        </div>
+      )}
+    </div>
+  );
+}
+
+export default function Results({ results, onReset, isAdmin = false }) {
   if (!results) return null;
 
   return (
@@ -60,92 +155,7 @@ export default function Results({ results, onReset }) {
           <div className="p-4 sm:p-5 space-y-3 ">
             {/* Materials */}
             {roomData.materials.map((item, matIdx) => (
-              <div
-                key={matIdx}
-                className="bg-white rounded-xl border border-gray-200 overflow-hidden"
-              >
-                {/* Material title */}
-                <div className="bg-white px-4 py-2.5 bg-gray-100 border-b border-gray-200">
-                  <p className="font-semibold text-gray-800">
-                    {item.description}
-                  </p>
-                  {item.option && (
-                    <p className="text-sm text-gray-500 mt-0.5">
-                      {item.option}
-                    </p>
-                  )}
-                </div>
-
-                <div className="px-4 py-3 text-base space-y-1.5">
-                  {item.length !== undefined ? (
-                    <>
-                      {item.note ? (
-                        <p className="text-gray-500 italic">{item.note}</p>
-                      ) : item.length > 0 ? (
-                        <Row
-                          label="Длина"
-                          value={`${item.length} м.п. × ${item.lengthUnitPrice}$ = ${item.length * item.lengthUnitPrice}$`}
-                        />
-                      ) : null}
-                      {item.holeCost > 0 && (
-                        <Row
-                          label="Отверстия"
-                          value={`${item.hole} шт. × ${item.holeCost / (item.hole || 1)}$ = ${item.holeCost}$`}
-                        />
-                      )}
-                    </>
-                  ) : (
-                    <>
-                      <Row
-                        label="Площадь"
-                        value={`${item.area} м² × ${item.unitPrice}$ = ${item.areaCost}$`}
-                      />
-                      {item.modifiers &&
-                        item.modifiers.map((m, mi) => (
-                          <Row key={mi} label={m.label} delta={m.delta} />
-                        ))}
-                      {item.cornerCost > 0 && (
-                        <Row
-                          label="Внешние углы"
-                          value={`${item.corners} м.п. × ${item.cornerUnitPrice}$ = ${item.cornerCost}$`}
-                        />
-                      )}
-                      {item.holeCost > 0 && (
-                        <Row
-                          label="Отверстия"
-                          value={`${item.hole} шт. × ${item.holeCost / (item.hole || 1)}$ = ${item.holeCost}$`}
-                        />
-                      )}
-                    </>
-                  )}
-
-                  {/* Extras / add-ons */}
-                  {item.extras && item.extras.length > 0 && (
-                    <div className="mt-3 pt-3 border-t border-gray-100 space-y-1.5">
-                      <SectionLabel>Дополнения</SectionLabel>
-                      {item.extras.map((e, i) => (
-                        <Row
-                          key={i}
-                          label={e.label}
-                          sublabel={e.type}
-                          value={`${e.qty} ${e.qtyLabel} × ${e.unitPrice}$`}
-                          delta={e.delta}
-                        />
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Material total */}
-                <div className="px-4 py-2.5  border-t border-gray-200 flex justify-between items-center">
-                  <span className="text-sm font-semibold text-gray-950">
-                    Итого
-                  </span>
-                  <span className="font-bold text-gray-900 text-base">
-                    {item.cost}$
-                  </span>
-                </div>
-              </div>
+              <MaterialCard key={matIdx} item={item} isAdmin={isAdmin} />
             ))}
 
             {/* Products */}

@@ -22,5 +22,13 @@ export function saveEstimate({ uuid, total, details }) {
 }
 
 export function markEstimateSent({ uuid, channel }) {
-  return post({ action: "mark_sent", uuid, channel });
+  return post({
+    action: "mark_sent",
+    uuid,
+    status: `Отправлено (${channel})`,
+  });
+}
+
+export function markEstimateCopied({ uuid }) {
+  return post({ action: "mark_sent", uuid, status: "Скопировано" });
 }

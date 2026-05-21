@@ -13,7 +13,7 @@ function numberRooms(allRooms) {
   });
 }
 
-function roomSubtotal(room) {
+export function roomSubtotal(room) {
   const matSum = room.materials.reduce((s, m) => s + (Number(m.cost) || 0), 0);
   const prodSum = (room.products || []).reduce(
     (s, p) => s + (Number(p.cost) || 0),

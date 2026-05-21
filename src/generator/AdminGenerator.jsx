@@ -92,7 +92,7 @@ function AdminGenerator() {
 
         <div>
           <label className="block text-sm font-medium mb-1 text-gray-300">
-            Секретный ключ (CALC_SECRET_KEY):
+            Секретный ключ (CALC_SECRET_KEY или ADMIN_PASSWORD):
           </label>
           <input
             type="password"
