@@ -300,6 +300,7 @@ export function calculateTotal(rooms = []) {
           count: p.count || 1,
           unitPrice: unitP,
           cost: pCost,
+          media: productType?.media,
         });
         total += pCost;
       });

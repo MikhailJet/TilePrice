@@ -396,19 +396,36 @@ function Rooms({ step, setStep, onCalculate }) {
 
               {/* Добавленные изделия */}
               <div className="space-y-3 mb-4 ">
-                {products.map((p) => (
-                  <div
-                    key={p.id}
-                    //className="border rounded-xl p-4 bg-white flex items-start justify-between"
-                    className="flex items-start justify-between border-2 border-gray-200 rounded-xl p-4 sm:p-5 md:p-6 bg-white"
-                    style={{ animation: "fadeIn 0.4s ease-in" }}
-                  >
-                    <div className="flex-1">
-                      <div className="font-semibold">
-                        {PRODUCTS_TYPES[p.productType].label}
+                {products.map((p) => {
+                  const product = PRODUCTS_TYPES[p.productType];
+                  return (
+                    <div
+                      key={p.id}
+                      className="relative border-2 border-gray-200 rounded-xl p-4 sm:p-5 md:p-6 bg-white"
+                      style={{ animation: "fadeIn 0.4s ease-in" }}
+                    >
+                      <button
+                        onClick={() => removeProduct(p.id)}
+                        className="absolute top-2 right-2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition"
+                        title="Удалить изделие"
+                      >
+                        ✕
+                      </button>
+
+                      <div className="flex items-center gap-3 pr-8">
+                        {product?.media?.photo && (
+                          <img
+                            src={product.media.photo}
+                            alt={product.label}
+                            loading="lazy"
+                            className="w-8 h-8 sm:w-10 sm:h-10 rounded object-cover shrink-0"
+                          />
+                        )}
+                        <div className="font-semibold">{product.label}</div>
                       </div>
+
                       {p.productType === "sink" && (
-                        <div className="mt-2">
+                        <div className="mt-3">
                           <label className="block text-sm text-gray-600 mb-1">
                             Размер раковины
                           </label>
@@ -424,7 +441,7 @@ function Rooms({ step, setStep, onCalculate }) {
                           </select>
                         </div>
                       )}
-                      <div className="mt-2">
+                      <div className="mt-3">
                         <label className="block text-sm text-gray-600 mb-1">
                           Количество
                         </label>
@@ -443,19 +460,8 @@ function Rooms({ step, setStep, onCalculate }) {
                         />
                       </div>
                     </div>
-
-                    <div className="ml-4">
-                      <button
-                        onClick={() => removeProduct(p.id)}
-                        className="text-gray-400 hover:text-red-500 hover:bg-red-50 p-2"
-                        //absolute top-2 right-2 w-8 h-8 flex items-center justify-center text-gray-400 hover:text-red-500 hover:bg-red-50 rounded transition
-                        title="Удалить изделие"
-                      >
-                        ✕
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>

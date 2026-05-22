@@ -79,6 +79,13 @@ export default function ProductMedia({ media, alt = "" }) {
     return window.matchMedia("(hover: hover) and (pointer: fine)").matches;
   });
   const [isActive, setIsActive] = useState(false);
+  // Lazy-mount the <video>: only render it after the card has been activated
+  // at least once. Keeps the picker from spawning N concurrent video network
+  // requests when 6–12 cards mount at once.
+  const [hasActivated, setHasActivated] = useState(false);
+  // Video is "ready" once `canplay` has fired; we drop back to the photo if
+  // playback stalls (`waiting`) so the user never stares at a frozen frame.
+  const [videoReady, setVideoReady] = useState(false);
 
   useEffect(() => {
     if (typeof window === "undefined" || !window.matchMedia) return;
@@ -104,6 +111,13 @@ export default function ProductMedia({ media, alt = "" }) {
     return () => unregisterTouchEntry(entry);
   }, [canHover]);
 
+  // Promote to "activated" the first time the card becomes active. After that
+  // the <video> stays mounted so the browser HTTP cache can be reused without
+  // re-fetching on every subsequent hover.
+  useEffect(() => {
+    if (isActive && !hasActivated) setHasActivated(true);
+  }, [isActive, hasActivated]);
+
   useEffect(() => {
     const v = videoRef.current;
     if (!v) return;
@@ -114,7 +128,7 @@ export default function ProductMedia({ media, alt = "" }) {
       v.pause();
       v.currentTime = 0;
     }
-  }, [isActive]);
+  }, [isActive, hasActivated]);
 
   const hoverProps = canHover
     ? {
@@ -122,6 +136,8 @@ export default function ProductMedia({ media, alt = "" }) {
         onMouseLeave: () => setIsActive(false),
       }
     : {};
+
+  const showVideo = isActive && videoReady && media?.video;
 
   return (
     <div
@@ -135,20 +151,23 @@ export default function ProductMedia({ media, alt = "" }) {
           alt={alt}
           loading="lazy"
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${
-            isActive && media?.video ? "opacity-0" : "opacity-100"
+            showVideo ? "opacity-0" : "opacity-100"
           }`}
         />
       )}
-      {media?.video && (
+      {media?.video && hasActivated && (
         <video
           ref={videoRef}
           src={media.video}
+          poster={media.photo}
           muted
           loop
           playsInline
           preload="metadata"
+          onCanPlay={() => setVideoReady(true)}
+          onWaiting={() => setVideoReady(false)}
           className={`absolute inset-0 w-full h-full object-cover transition-opacity duration-200 ${
-            isActive ? "opacity-100" : "opacity-0"
+            showVideo ? "opacity-100" : "opacity-0"
           }`}
         />
       )}
